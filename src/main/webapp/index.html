@@ -303,6 +303,54 @@
             font-size: 13px;
         }
 
+        .auth-panel, .alert {
+            margin-bottom: 22px;
+            padding: 16px 18px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+        }
+
+        .auth-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .alert {
+            display: none;
+            font-size: 14px;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            border-color: #a9ddca;
+            color: #096445;
+            background: #edfbf5;
+        }
+
+        .alert.warning {
+            border-color: #f0c797;
+            color: #925414;
+            background: #fff8ed;
+        }
+
+        .alert.error {
+            border-color: #e6aaaa;
+            color: #9f2929;
+            background: #fff1f1;
+        }
+
         @media (max-width: 800px) {
             .layout {
                 display: block;
@@ -351,6 +399,20 @@
             </div>
             <button class="button" type="button" id="open-create">新增客戶</button>
         </section>
+
+        <section class="auth-panel">
+            <div>
+                <strong>JWT 驗證展示</strong>
+                <div class="subtitle" id="auth-state">尚未登入。客戶資料 API 需要有效 JWT token。</div>
+            </div>
+            <div class="auth-actions">
+                <button class="button" type="button" id="open-login">登入取得 JWT</button>
+                <button class="button secondary" type="button" id="verify-token">驗證目前 JWT</button>
+                <button class="button secondary" type="button" id="clear-token">清除 JWT</button>
+            </div>
+        </section>
+
+        <div class="alert" id="page-alert"></div>
 
         <section class="cards">
             <article class="card">
@@ -438,12 +500,38 @@
     </form>
 </dialog>
 
+<dialog id="login-dialog">
+    <form id="login-form">
+        <div class="modal-header">
+            <h2>營運管理員登入</h2>
+        </div>
+        <div class="modal-body">
+            <p class="note">登入成功後，後端會使用 hardcoded <code>JWT_SIGNING_KEY</code> 簽發 JWT。</p>
+            <label for="login-username">帳號</label>
+            <input id="login-username" name="username" value="operator" required autocomplete="username">
+            <label for="login-password">密碼</label>
+            <input id="login-password" name="password" type="password" value="demo-login-password" required
+                   autocomplete="current-password">
+            <div class="message" id="login-message"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="button secondary" type="button" id="cancel-login">取消</button>
+            <button class="button" type="submit">登入並取得 JWT</button>
+        </div>
+    </form>
+</dialog>
+
 <script>
     const customerRows = document.getElementById("customer-rows");
     const secretRows = document.getElementById("secret-rows");
     const createDialog = document.getElementById("create-dialog");
     const createForm = document.getElementById("create-form");
     const formMessage = document.getElementById("form-message");
+    const loginDialog = document.getElementById("login-dialog");
+    const loginForm = document.getElementById("login-form");
+    const loginMessage = document.getElementById("login-message");
+    const pageAlert = document.getElementById("page-alert");
+    const tokenKey = "vaultMigrationDemoJwt";
 
     function escapeHtml(value) {
         const div = document.createElement("div");
@@ -467,6 +555,41 @@
         }
     }
 
+    function token() {
+        return localStorage.getItem(tokenKey);
+    }
+
+    function authHeaders(extra = {}) {
+        const jwt = token();
+        return jwt ? {...extra, "Authorization": `Bearer ${jwt}`} : extra;
+    }
+
+    function notify(message, level = "success") {
+        pageAlert.textContent = message;
+        pageAlert.className = `alert show ${level}`;
+    }
+
+    async function verifyToken(showResult = true) {
+        const authState = document.getElementById("auth-state");
+        if (!token()) {
+            authState.textContent = "尚未登入。客戶資料 API 需要有效 JWT token。";
+            if (showResult) notify("目前沒有 JWT token，請先登入。", "warning");
+            return false;
+        }
+        try {
+            const response = await fetch("api/auth/profile", {headers: authHeaders()});
+            if (!response.ok) throw new Error(await readError(response, "JWT 驗證失敗"));
+            const profile = await response.json();
+            authState.textContent = `JWT 簽章有效：${profile.username} / ${profile.role}，到期時間 ${new Date(profile.expiresAt * 1000).toLocaleString()}`;
+            if (showResult) notify("JWT 簽章驗證成功。此 token 可呼叫受保護的客戶 API。");
+            return true;
+        } catch (error) {
+            authState.textContent = `JWT 無效：${error.message}`;
+            if (showResult) notify(error.message, "error");
+            return false;
+        }
+    }
+
     async function loadHealth() {
         try {
             const response = await fetch("api/health");
@@ -482,7 +605,7 @@
     async function loadCustomers() {
         customerRows.innerHTML = '<tr><td class="empty" colspan="4">正在載入客戶資料...</td></tr>';
         try {
-            const response = await fetch("api/customers?limit=20");
+            const response = await fetch("api/customers?limit=20", {headers: authHeaders()});
             if (!response.ok) throw new Error(await readError(response, "無法取得客戶資料"));
             const customers = await response.json();
             document.getElementById("customer-count").textContent = customers.length;
@@ -518,12 +641,51 @@
     }
 
     document.getElementById("open-create").addEventListener("click", () => {
+        if (!token()) {
+            notify("請先登入取得 JWT，再建立客戶。", "warning");
+            return;
+        }
         formMessage.textContent = "";
         createDialog.showModal();
     });
 
+    document.getElementById("open-login").addEventListener("click", () => {
+        loginMessage.textContent = "";
+        loginDialog.showModal();
+    });
+
     document.getElementById("cancel-create").addEventListener("click", () => createDialog.close());
+    document.getElementById("cancel-login").addEventListener("click", () => loginDialog.close());
     document.getElementById("reload-customers").addEventListener("click", loadCustomers);
+    document.getElementById("verify-token").addEventListener("click", () => verifyToken());
+    document.getElementById("clear-token").addEventListener("click", () => {
+        localStorage.removeItem(tokenKey);
+        verifyToken(false);
+        loadCustomers();
+        notify("JWT token 已從瀏覽器清除。再次查詢客戶資料將收到 401。", "warning");
+    });
+
+    loginForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        loginMessage.textContent = "";
+        const fields = new FormData(loginForm);
+        try {
+            const response = await fetch("api/auth/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({username: fields.get("username"), password: fields.get("password")})
+            });
+            if (!response.ok) throw new Error(await readError(response, "登入失敗"));
+            const result = await response.json();
+            localStorage.setItem(tokenKey, result.accessToken);
+            loginDialog.close();
+            await verifyToken(false);
+            await loadCustomers();
+            notify("登入成功。JWT 已儲存在瀏覽器，客戶 API 現在可以正常使用。");
+        } catch (error) {
+            loginMessage.textContent = error.message;
+        }
+    });
 
     createForm.addEventListener("submit", async event => {
         event.preventDefault();
@@ -532,21 +694,24 @@
         try {
             const response = await fetch("api/customers", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: authHeaders({"Content-Type": "application/json"}),
                 body: JSON.stringify({name: fields.get("name"), email: fields.get("email")})
             });
             if (!response.ok) {
                 throw new Error(await readError(response, "建立客戶失敗"));
             }
+            const result = await response.json();
             createForm.reset();
             createDialog.close();
             await loadCustomers();
+            notify(result.notificationMessage, result.notificationSent ? "success" : "warning");
         } catch (error) {
             formMessage.textContent = error.message;
         }
     });
 
     loadHealth();
+    verifyToken(false);
     loadCustomers();
     loadSecretCandidates();
 </script>

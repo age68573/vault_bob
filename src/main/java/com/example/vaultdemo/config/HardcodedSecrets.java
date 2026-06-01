@@ -16,10 +16,13 @@ public final class HardcodedSecrets {
 
     public static final String JWT_SIGNING_KEY =
             "demo-jwt-signing-key-change-before-production";
+    public static final String DEMO_LOGIN_USERNAME = "operator";
+    public static final String DEMO_LOGIN_PASSWORD = "demo-login-password";
+    public static final String SMTP_HOST = "10.107.85.47";
+    public static final int SMTP_PORT = 25;
+    public static final String SMTP_FROM_ADDRESS = "vault-bob.palsys.com.tw";
     public static final String PARTNER_API_KEY =
             "partner_demo_7d39d6b662b94b4b";
-    public static final String SMTP_USERNAME = "batch-notifier@example.internal";
-    public static final String SMTP_PASSWORD = "demo-smtp-password";
     public static final String KEYSTORE_PATH = "/opt/eap/standalone/configuration/demo-client.p12";
     public static final String KEYSTORE_PASSWORD = "demo-keystore-password";
     public static final String INTERNAL_BASIC_AUTH_USERNAME = "settlement-service";
@@ -31,6 +34,8 @@ public final class HardcodedSecrets {
                     "secret/data/vault-migration-demo/mongodb"),
             new SecretCandidate("jwt-signing-key", "Application JWT signing key",
                     "secret/data/vault-migration-demo/jwt"),
+            new SecretCandidate("smtp-relay-settings", "SMTP relay host, port, and sender identity",
+                    "secret/data/vault-migration-demo/smtp"),
             new SecretCandidate("partner-api-key", "External partner API key",
                     "secret/data/vault-migration-demo/partner-api"),
             new SecretCandidate("smtp-credentials", "SMTP username and password for notifications",

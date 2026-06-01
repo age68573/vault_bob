@@ -2,6 +2,9 @@ package com.example.vaultdemo.rest;
 
 import com.example.vaultdemo.config.HardcodedSecrets;
 import com.example.vaultdemo.config.MongoClientProvider;
+import com.example.vaultdemo.notification.SmtpNotificationService;
+import com.example.vaultdemo.security.AuthSupport;
+import com.example.vaultdemo.security.JwtService;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
 import jakarta.json.JsonObject;
@@ -12,6 +15,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -28,9 +32,13 @@ public class CustomerResource {
 
     private static final int DEFAULT_LIMIT = 20;
     private static final int MAX_LIMIT = 100;
+    private final SmtpNotificationService smtpNotificationService = new SmtpNotificationService();
 
     @GET
-    public List<Map<String, Object>> list(@QueryParam("limit") Integer requestedLimit) {
+    public Response list(@jakarta.ws.rs.core.Context HttpHeaders headers,
+                         @QueryParam("limit") Integer requestedLimit) {
+        JwtService.TokenValidation validation = AuthSupport.validate(headers);
+        if (!validation.valid()) return AuthSupport.unauthorized(validation);
         int limit = requestedLimit == null ? DEFAULT_LIMIT : Math.max(1, Math.min(requestedLimit, MAX_LIMIT));
         List<Map<String, Object>> customers = new ArrayList<>();
 
@@ -39,12 +47,14 @@ public class CustomerResource {
                 .limit(limit)
                 .forEach(document -> customers.add(toResponse(document)));
 
-        return customers;
+        return Response.ok(customers).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(JsonObject request) {
+    public Response create(@jakarta.ws.rs.core.Context HttpHeaders headers, JsonObject request) {
+        JwtService.TokenValidation validation = AuthSupport.validate(headers);
+        if (!validation.valid()) return AuthSupport.unauthorized(validation);
         String name = trimmed(request, "name");
         String email = trimmed(request, "email");
 
@@ -60,7 +70,11 @@ public class CustomerResource {
                 .append("createdAt", Instant.now().toString());
         collection().insertOne(customer);
 
-        return Response.status(Response.Status.CREATED).entity(toResponse(customer)).build();
+        SmtpNotificationService.NotificationResult notification = smtpNotificationService.sendWelcome(email, name);
+        Map<String, Object> response = toResponse(customer);
+        response.put("notificationSent", notification.sent());
+        response.put("notificationMessage", notification.message());
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     private MongoCollection<Document> collection() {
