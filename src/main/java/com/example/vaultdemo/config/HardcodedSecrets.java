@@ -20,7 +20,7 @@ public final class HardcodedSecrets {
     public static final String DEMO_LOGIN_PASSWORD = "demo-login-password";
     public static final String SMTP_HOST = "10.107.85.47";
     public static final int SMTP_PORT = 25;
-    public static final String SMTP_FROM_ADDRESS = "vault-bob.palsys.com.tw";
+    public static final String SMTP_FROM_ADDRESS = "vault-bob@palsys.com.tw";
     public static final String PARTNER_API_KEY =
             "partner_demo_7d39d6b662b94b4b";
     public static final String KEYSTORE_PATH = "/opt/eap/standalone/configuration/demo-client.p12";
@@ -38,8 +38,6 @@ public final class HardcodedSecrets {
                     "secret/data/vault-migration-demo/smtp"),
             new SecretCandidate("partner-api-key", "External partner API key",
                     "secret/data/vault-migration-demo/partner-api"),
-            new SecretCandidate("smtp-credentials", "SMTP username and password for notifications",
-                    "secret/data/vault-migration-demo/smtp"),
             new SecretCandidate("keystore-password", "TLS client keystore password",
                     "secret/data/vault-migration-demo/tls"),
             new SecretCandidate("internal-basic-auth", "Legacy internal service credentials",

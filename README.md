@@ -32,7 +32,7 @@ src/main/java/com/example/vaultdemo/config/HardcodedSecrets.java
 | `DEMO_LOGIN_PASSWORD` | `demo-login-password` | JWT demo 登入密碼。 | `secret/data/vault-migration-demo/login` |
 | `SMTP_HOST` | `10.107.85.47` | 無帳密 SMTP relay IP。此資訊不是密碼，但會揭露可寄信的內部基礎設施位置。 | `secret/data/vault-migration-demo/smtp` |
 | `SMTP_PORT` | `25` | 無帳密 SMTP relay port。 | `secret/data/vault-migration-demo/smtp` |
-| `SMTP_FROM_ADDRESS` | `vault-bob.palsys.com.tw` | SMTP relay 使用的寄件者設定。 | `secret/data/vault-migration-demo/smtp` |
+| `SMTP_FROM_ADDRESS` | `vault-bob@palsys.com.tw` | SMTP relay 使用的寄件者設定。 | `secret/data/vault-migration-demo/smtp` |
 | `PARTNER_API_KEY` | `partner_demo_7d39d6b662b94b4b` | 呼叫外部合作夥伴 API 使用的 API key。 | `secret/data/vault-migration-demo/partner-api` |
 | `KEYSTORE_PASSWORD` | `demo-keystore-password` | 讀取 TLS client keystore 使用的密碼。 | `secret/data/vault-migration-demo/tls` |
 | `INTERNAL_BASIC_AUTH_USERNAME` | `settlement-service` | 呼叫 legacy 內部服務使用的 Basic Auth 帳號。 | `secret/data/vault-migration-demo/internal-service` |
