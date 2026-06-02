@@ -22,7 +22,7 @@ public class HealthResource {
         status.put("application", "northstar-customer-center");
 
         try {
-            MongoClientProvider.get().getDatabase(ApplicationConfig.MONGODB_DATABASE)
+            MongoClientProvider.get().getDatabase(ApplicationConfig.mongodbDatabase())
                     .runCommand(new Document("ping", 1));
             status.put("status", "UP");
             status.put("mongodb", "UP");

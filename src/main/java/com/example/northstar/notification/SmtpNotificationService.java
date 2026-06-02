@@ -17,7 +17,7 @@ public class SmtpNotificationService {
 
     public NotificationResult sendWelcome(String recipient, String customerName) {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(ApplicationConfig.SMTP_HOST, ApplicationConfig.SMTP_PORT),
+            socket.connect(new InetSocketAddress(ApplicationConfig.smtpHost(), ApplicationConfig.smtpPort()),
                     TIMEOUT_MILLIS);
             socket.setSoTimeout(TIMEOUT_MILLIS);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),
@@ -26,10 +26,10 @@ public class SmtpNotificationService {
                          StandardCharsets.UTF_8))) {
                 expect(reader, 220);
                 command(writer, reader, "EHLO northstar-customer-center", 250);
-                command(writer, reader, "MAIL FROM:<" + ApplicationConfig.SMTP_FROM_ADDRESS + ">", 250);
+                command(writer, reader, "MAIL FROM:<" + ApplicationConfig.smtpFromAddress() + ">", 250);
                 command(writer, reader, "RCPT TO:<" + recipient + ">", 250, 251);
                 command(writer, reader, "DATA", 354);
-                writer.write("From: " + ApplicationConfig.SMTP_FROM_ADDRESS + "\r\n");
+                writer.write("From: " + ApplicationConfig.smtpFromAddress() + "\r\n");
                 writer.write("To: " + recipient + "\r\n");
                 writer.write("Subject: Welcome to Northstar Customer Center\r\n");
                 writer.write("Content-Type: text/plain; charset=UTF-8\r\n");

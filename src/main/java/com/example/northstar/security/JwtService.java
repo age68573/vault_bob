@@ -62,7 +62,7 @@ public final class JwtService {
     private static String sign(String value) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(ApplicationConfig.JWT_SIGNING_KEY.getBytes(StandardCharsets.UTF_8),
+            mac.init(new SecretKeySpec(ApplicationConfig.jwtSigningKey().getBytes(StandardCharsets.UTF_8),
                     "HmacSHA256"));
             return ENCODER.encodeToString(mac.doFinal(value.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception exception) {

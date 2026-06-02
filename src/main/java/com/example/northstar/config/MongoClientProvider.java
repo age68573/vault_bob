@@ -16,7 +16,7 @@ public final class MongoClientProvider {
             synchronized (MongoClientProvider.class) {
                 result = mongoClient;
                 if (result == null) {
-                    result = MongoClients.create(ApplicationConfig.MONGODB_URI);
+                    result = MongoClients.create(ApplicationConfig.mongodbUri());
                     mongoClient = result;
                 }
             }

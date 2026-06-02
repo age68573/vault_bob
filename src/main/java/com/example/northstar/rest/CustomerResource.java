@@ -78,7 +78,7 @@ public class CustomerResource {
     }
 
     private MongoCollection<Document> collection() {
-        return MongoClientProvider.get().getDatabase(ApplicationConfig.MONGODB_DATABASE)
+        return MongoClientProvider.get().getDatabase(ApplicationConfig.mongodbDatabase())
                 .getCollection("customers");
     }
 

@@ -25,8 +25,8 @@ public class AuthResource {
     public Response login(JsonObject request) {
         String username = request.getString("username", "");
         String password = request.getString("password", "");
-        if (!ApplicationConfig.DEMO_LOGIN_USERNAME.equals(username)
-                || !ApplicationConfig.DEMO_LOGIN_PASSWORD.equals(password)) {
+        if (!ApplicationConfig.loginUsername().equals(username)
+                || !ApplicationConfig.loginPassword().equals(password)) {
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(Map.of("error", "帳號或密碼錯誤"))
                     .build();
