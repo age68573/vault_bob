@@ -1,7 +1,7 @@
-package com.example.vaultdemo.rest;
+package com.example.northstar.rest;
 
-import com.example.vaultdemo.config.HardcodedSecrets;
-import com.example.vaultdemo.config.MongoClientProvider;
+import com.example.northstar.config.ApplicationConfig;
+import com.example.northstar.config.MongoClientProvider;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -19,10 +19,10 @@ public class HealthResource {
     @GET
     public Response health() {
         Map<String, Object> status = new LinkedHashMap<>();
-        status.put("application", "vault-migration-demo");
+        status.put("application", "northstar-customer-center");
 
         try {
-            MongoClientProvider.get().getDatabase(HardcodedSecrets.MONGODB_DATABASE)
+            MongoClientProvider.get().getDatabase(ApplicationConfig.MONGODB_DATABASE)
                     .runCommand(new Document("ping", 1));
             status.put("status", "UP");
             status.put("mongodb", "UP");

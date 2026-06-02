@@ -1,6 +1,6 @@
-package com.example.vaultdemo.security;
+package com.example.northstar.security;
 
-import com.example.vaultdemo.config.HardcodedSecrets;
+import com.example.northstar.config.ApplicationConfig;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -62,7 +62,7 @@ public final class JwtService {
     private static String sign(String value) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(HardcodedSecrets.JWT_SIGNING_KEY.getBytes(StandardCharsets.UTF_8),
+            mac.init(new SecretKeySpec(ApplicationConfig.JWT_SIGNING_KEY.getBytes(StandardCharsets.UTF_8),
                     "HmacSHA256"));
             return ENCODER.encodeToString(mac.doFinal(value.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception exception) {

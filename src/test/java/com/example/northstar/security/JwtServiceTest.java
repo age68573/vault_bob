@@ -1,4 +1,4 @@
-package com.example.vaultdemo.security;
+package com.example.northstar.security;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,8 @@
-package com.example.vaultdemo.rest;
+package com.example.northstar.rest;
 
-import com.example.vaultdemo.config.HardcodedSecrets;
-import com.example.vaultdemo.security.AuthSupport;
-import com.example.vaultdemo.security.JwtService;
+import com.example.northstar.config.ApplicationConfig;
+import com.example.northstar.security.AuthSupport;
+import com.example.northstar.security.JwtService;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -25,8 +25,8 @@ public class AuthResource {
     public Response login(JsonObject request) {
         String username = request.getString("username", "");
         String password = request.getString("password", "");
-        if (!HardcodedSecrets.DEMO_LOGIN_USERNAME.equals(username)
-                || !HardcodedSecrets.DEMO_LOGIN_PASSWORD.equals(password)) {
+        if (!ApplicationConfig.DEMO_LOGIN_USERNAME.equals(username)
+                || !ApplicationConfig.DEMO_LOGIN_PASSWORD.equals(password)) {
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(Map.of("error", "帳號或密碼錯誤"))
                     .build();

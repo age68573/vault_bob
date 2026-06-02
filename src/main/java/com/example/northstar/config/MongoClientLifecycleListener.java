@@ -1,4 +1,4 @@
-package com.example.vaultdemo.config;
+package com.example.northstar.config;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;

@@ -388,14 +388,13 @@
         <nav>
             <a class="active" href="#dashboard">營運總覽</a>
             <a href="#customers">客戶管理</a>
-            <a href="#security">安全治理</a>
         </nav>
     </aside>
     <main>
         <section class="page-heading">
             <div>
                 <h1>營運總覽</h1>
-                <p class="subtitle">客戶服務平台與機敏設定治理狀態</p>
+                <p class="subtitle">客戶服務平台營運狀態</p>
             </div>
             <button class="button" type="button" id="open-create">新增客戶</button>
         </section>
@@ -457,26 +456,6 @@
             </div>
         </section>
 
-        <section class="panel" id="security">
-            <div>
-                <h2>安全治理：Vault 遷移清單</h2>
-                <p class="subtitle">系統中待納管的機敏設定。畫面僅顯示用途與建議 Vault path，不會回傳密鑰值。</p>
-            </div>
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>項目</th>
-                        <th>使用情境</th>
-                        <th>建議 Vault Path</th>
-                    </tr>
-                    </thead>
-                    <tbody id="secret-rows">
-                    <tr><td class="empty" colspan="3">正在載入治理清單...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
     </main>
 </div>
 
@@ -506,7 +485,7 @@
             <h2>營運管理員登入</h2>
         </div>
         <div class="modal-body">
-            <p class="note">登入成功後，後端會使用 hardcoded <code>JWT_SIGNING_KEY</code> 簽發 JWT。</p>
+            <p class="note">登入成功後，系統會簽發有效期限為 15 分鐘的 JWT。</p>
             <label for="login-username">帳號</label>
             <input id="login-username" name="username" value="operator" required autocomplete="username">
             <label for="login-password">密碼</label>
@@ -523,7 +502,6 @@
 
 <script>
     const customerRows = document.getElementById("customer-rows");
-    const secretRows = document.getElementById("secret-rows");
     const createDialog = document.getElementById("create-dialog");
     const createForm = document.getElementById("create-form");
     const formMessage = document.getElementById("form-message");
@@ -531,7 +509,7 @@
     const loginForm = document.getElementById("login-form");
     const loginMessage = document.getElementById("login-message");
     const pageAlert = document.getElementById("page-alert");
-    const tokenKey = "vaultMigrationDemoJwt";
+    const tokenKey = "northstarCustomerCenterJwt";
 
     function escapeHtml(value) {
         const div = document.createElement("div");
@@ -624,22 +602,6 @@
         }
     }
 
-    async function loadSecretCandidates() {
-        try {
-            const response = await fetch("api/vault-migration-candidates");
-            if (!response.ok) throw new Error(await readError(response, "無法取得治理清單"));
-            const candidates = await response.json();
-            secretRows.innerHTML = candidates.map(candidate => `
-                <tr>
-                    <td><code>${escapeHtml(candidate.id)}</code></td>
-                    <td>${escapeHtml(candidate.scenario)}</td>
-                    <td><code>${escapeHtml(candidate.suggestedVaultPath)}</code></td>
-                </tr>`).join("");
-        } catch (error) {
-            secretRows.innerHTML = `<tr><td class="empty" colspan="3">${escapeHtml(error.message)}</td></tr>`;
-        }
-    }
-
     document.getElementById("open-create").addEventListener("click", () => {
         if (!token()) {
             notify("請先登入取得 JWT，再建立客戶。", "warning");
@@ -713,7 +675,6 @@
     loadHealth();
     verifyToken(false);
     loadCustomers();
-    loadSecretCandidates();
 </script>
 </body>
 </html>

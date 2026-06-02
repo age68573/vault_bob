@@ -1,4 +1,4 @@
-package com.example.vaultdemo.rest;
+package com.example.northstar.rest;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;

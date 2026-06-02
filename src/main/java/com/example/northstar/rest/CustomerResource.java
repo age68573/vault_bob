@@ -1,10 +1,10 @@
-package com.example.vaultdemo.rest;
+package com.example.northstar.rest;
 
-import com.example.vaultdemo.config.HardcodedSecrets;
-import com.example.vaultdemo.config.MongoClientProvider;
-import com.example.vaultdemo.notification.SmtpNotificationService;
-import com.example.vaultdemo.security.AuthSupport;
-import com.example.vaultdemo.security.JwtService;
+import com.example.northstar.config.ApplicationConfig;
+import com.example.northstar.config.MongoClientProvider;
+import com.example.northstar.notification.SmtpNotificationService;
+import com.example.northstar.security.AuthSupport;
+import com.example.northstar.security.JwtService;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
 import jakarta.json.JsonObject;
@@ -78,7 +78,7 @@ public class CustomerResource {
     }
 
     private MongoCollection<Document> collection() {
-        return MongoClientProvider.get().getDatabase(HardcodedSecrets.MONGODB_DATABASE)
+        return MongoClientProvider.get().getDatabase(ApplicationConfig.MONGODB_DATABASE)
                 .getCollection("customers");
     }
 

@@ -1,4 +1,4 @@
-package com.example.vaultdemo.config;
+package com.example.northstar.config;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -16,7 +16,7 @@ public final class MongoClientProvider {
             synchronized (MongoClientProvider.class) {
                 result = mongoClient;
                 if (result == null) {
-                    result = MongoClients.create(HardcodedSecrets.MONGODB_URI);
+                    result = MongoClients.create(ApplicationConfig.MONGODB_URI);
                     mongoClient = result;
                 }
             }

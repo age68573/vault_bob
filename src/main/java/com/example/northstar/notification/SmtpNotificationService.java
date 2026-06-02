@@ -1,6 +1,6 @@
-package com.example.vaultdemo.notification;
+package com.example.northstar.notification;
 
-import com.example.vaultdemo.config.HardcodedSecrets;
+import com.example.northstar.config.ApplicationConfig;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,7 +17,7 @@ public class SmtpNotificationService {
 
     public NotificationResult sendWelcome(String recipient, String customerName) {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(HardcodedSecrets.SMTP_HOST, HardcodedSecrets.SMTP_PORT),
+            socket.connect(new InetSocketAddress(ApplicationConfig.SMTP_HOST, ApplicationConfig.SMTP_PORT),
                     TIMEOUT_MILLIS);
             socket.setSoTimeout(TIMEOUT_MILLIS);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),
@@ -25,11 +25,11 @@ public class SmtpNotificationService {
                  BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),
                          StandardCharsets.UTF_8))) {
                 expect(reader, 220);
-                command(writer, reader, "EHLO vault-migration-demo", 250);
-                command(writer, reader, "MAIL FROM:<" + HardcodedSecrets.SMTP_FROM_ADDRESS + ">", 250);
+                command(writer, reader, "EHLO northstar-customer-center", 250);
+                command(writer, reader, "MAIL FROM:<" + ApplicationConfig.SMTP_FROM_ADDRESS + ">", 250);
                 command(writer, reader, "RCPT TO:<" + recipient + ">", 250, 251);
                 command(writer, reader, "DATA", 354);
-                writer.write("From: " + HardcodedSecrets.SMTP_FROM_ADDRESS + "\r\n");
+                writer.write("From: " + ApplicationConfig.SMTP_FROM_ADDRESS + "\r\n");
                 writer.write("To: " + recipient + "\r\n");
                 writer.write("Subject: Welcome to Northstar Customer Center\r\n");
                 writer.write("Content-Type: text/plain; charset=UTF-8\r\n");

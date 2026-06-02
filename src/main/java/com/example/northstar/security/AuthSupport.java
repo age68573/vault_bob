@@ -1,4 +1,4 @@
-package com.example.vaultdemo.security;
+package com.example.northstar.security;
 
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
